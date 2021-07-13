@@ -1,0 +1,53 @@
+---
+title: "Arboles Aleatorios"
+author: "jerf"
+date: "17/6/2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+# Árboles de Regresión
+
+```{r}
+dataset <- read.csv("Position_Salaries.csv")
+dataset = dataset[, 2:3]
+dataset
+```
+
+## Ajustar Modelo de Random Forest con el conjunto de Datos
+
+```{r}
+library(randomForest)
+set.seed(1234)
+regression = randomForest(x = dataset[1], #La funcion randomForest necesita un data Frame para la variable x, dataset[1] devuelve un dataset
+                          y = dataset$Salary,
+                          ntree = 500
+                          )
+```
+
+## Predicción de nuevos resultados con Random Forest
+
+```{r}
+y_pred = predict(regression, newdata = data.frame(Level = 6.5))
+y_pred
+```
+
+
+## Visualización del modelo Random Forest
+```{r}
+library(ggplot2)
+X_grid = seq(min(dataset$Level), max(dataset$Level), 0.01)
+ggplot() + 
+  geom_point(aes(x = dataset$Level, y = dataset$Salary), 
+             colour = "red") +
+  geom_line(aes(x = X_grid, y = predict(regression, newdata = data.frame(Level = X_grid))),
+            colour = "blue")+
+  geom_vline(xintercept = 6.5) +
+  geom_hline(yintercept = predict(regression, newdata = data.frame(Level = 6.5))) +
+  xlab("Nivel de empleado") + 
+  ylab("Sueldo en $") +
+  ggtitle("Predicción con Árbol de Decisión (Random Forest) \n del sueldo en función del nivel de empleado")
+```
+

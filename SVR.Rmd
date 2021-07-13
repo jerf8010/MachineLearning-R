@@ -1,0 +1,57 @@
+---
+title: "SVR"
+author: "jerf"
+date: "16/6/2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Maquina de Soporte Vectorial (SVR)
+
+```{r}
+dataset <- read.csv("Position_Salaries.csv")
+dataset = dataset[, 2:3]
+dataset
+```
+
+## Pre Procesado de datos
+
+No es necesario dividir el conjunto de datos, pues son muy pocos
+
+
+## Escalado de datos
+
+## Ajustar Modelo de Regresión con el conjunto de datos
+
+```{r}
+library(e1071)
+regression = svm(formula = Salary ~ Level, 
+                 data = dataset,
+                 type = "eps-regression",
+                 kernel = "radial")
+```
+
+## Haciendo predicciones
+```{r}
+y_pred = predict(regression, newdata = data.frame(Level = 6.5))
+y_pred
+```
+## Visualización del modelo Polinómico
+```{r}
+library(ggplot2)
+
+ggplot() + 
+  geom_point(aes(x =dataset$Level, y = dataset$Salary), 
+             colour = "red") +
+  geom_line(aes(x = dataset$Level, y = predict(regression, newdata = dataset)),
+            colour = "blue")+
+  xlab("Nivel de empleado") + 
+  ylab("Sueldo en $") +
+  ggtitle("Predicción SVR del sueldo \n en función del nivel de empleado")
+  
+```
+
+
+Los valores atípicos suelen ser despreciados por el modelo
+

@@ -1,0 +1,85 @@
+---
+title: "Regresión Lineal Simple"
+author: "jerf"
+date: "14/6/2021"
+output: html_document
+---
+
+# Regresión Lineal Simple
+
+```{r}
+dataset = read.csv("Salary_data.csv")
+dataset
+```
+
+
+## Pre Procesado de datos
+
+```{r}
+library(caTools)
+set.seed(123)
+split = sample.split(dataset$Salary, SplitRatio = 2/3)
+training_set = subset(dataset, split == TRUE)
+training_set
+testing_set = subset(dataset, split == FALSE)
+testing_set
+
+```
+
+
+## Escalado de valores
+
+En este caso no es necesario hacerlo
+
+## Modelo de Regresión Lineal
+
+```{r}
+# ~ Significa en función de ...
+regressor = lm(formula = Salary ~ YearsExperience, 
+               data = dataset)
+summary(regressor) #Resumen de estadísticos del regressor
+```
+El p-valor (Pr) es mucho menor a 5% por lo que la relevancia estadistica de los años de experiencia para predecir el salario es alto. Esto tiene que ver con el número de asteriscos, en este caso tres, que es lo máximo.
+
+## Haciendo predicciones con el conjunto de test
+
+Las columnas de newdata deben llamarse igual que las columnas metidas en regressor
+```{r}
+y_pred = predict(regressor, newdata = testing_set)
+y_pred
+```
+
+## Visualización de los resultados en el conjunto de entrenamiento
+
+```{r}
+library(ggplot2)
+ggplot() +
+  geom_point(aes(x = training_set$YearsExperience, y = training_set$Salary), 
+             colour = "red") + 
+  geom_line(aes(x = training_set$YearsExperience, 
+                y = predict(regressor, newdata = training_set)),
+            colour = "blue") +
+  ggtitle("Sueldo vs Años de Experiencia (Conjunto de entrenamiento)") +
+  xlab("Años de Experiencia") + 
+  ylab("Sueldo (en $)")
+  
+```
+
+
+
+## Visualización de los resultados en el conjunto de testing
+
+
+```{r}
+library(ggplot2)
+ggplot() +
+  geom_point(aes(x = testing_set$YearsExperience, y = testing_set$Salary), 
+             colour = "red") + 
+  geom_line(aes(x = training_set$YearsExperience, 
+                y = predict(regressor, newdata = training_set)),
+            colour = "blue") +
+  ggtitle("Sueldo vs Años de Experiencia (Conjunto de testing)") +
+  xlab("Años de Experiencia") + 
+  ylab("Sueldo (en $)")
+  
+```

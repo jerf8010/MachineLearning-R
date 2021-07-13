@@ -1,0 +1,52 @@
+---
+title: "Árboles de Regresión"
+author: "jerf"
+date: "17/6/2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Árboles de Regresión
+
+```{r}
+dataset <- read.csv("Position_Salaries.csv")
+dataset = dataset[, 2:3]
+dataset
+```
+
+
+# Ajustar modelo de Regresión con el Conjunto de Datos
+
+```{r}
+library("rpart")
+regression = rpart(formula = Salary ~.,
+                   data = dataset,
+                   control = rpart.control(minsplit = 1))
+```
+
+# Haciendo predicciones con el Árbol de Regresión
+
+```{r}
+y_pred = predict(regression, newdata = data.frame(Level = 6.5))
+y_pred
+```
+
+## Visualización del modelo Polinómico
+```{r}
+library(ggplot2)
+X_grid = seq(min(dataset$Level), max(dataset$Level), 0.1)
+ggplot() + 
+  geom_point(aes(x = dataset$Level, y = dataset$Salary), 
+             colour = "red") +
+  geom_line(aes(x = X_grid, y = predict(regression, newdata = data.frame(Level = X_grid))),
+            colour = "blue")+
+  geom_vline(xintercept = 6.5) +
+  geom_hline(yintercept = predict(regression, newdata = data.frame(Level = 6.5))) +
+  xlab("Nivel de empleado") + 
+  ylab("Sueldo en $") +
+  ggtitle("Predicción con Árbol de Decisión (Modelo de Regresión) \n del sueldo en función del nivel de empleado")
+  
+```
+
+Al querer predecir, solo toma el más cercano por ello. Por eso al nivel de empleado 6.5 se le asigna el valor del nodo donde lo clasifica. Este algoritmo se mejora con la regresión de bosques aleatorios.

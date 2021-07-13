@@ -1,0 +1,95 @@
+---
+title: "Regresión Polinómica"
+author: "jerf"
+date: "15/6/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Regresión Polinómica
+
+```{r}
+dataset = read.csv("Position_Salaries.csv")
+dataset = dataset[, 2:3]
+dataset
+```
+## Pre Procesado de datos
+
+No es necesario dividir el conjunto de datos, pues son muy pocos
+
+## Escalado de datos
+
+Tampoco es necesario en este caso
+
+# Ajustar Mdelo de Regresión Lineal con el dataset
+
+```{r}
+lin_reg = lm(formula = Salary ~ Level,
+             data = dataset
+             )
+summary(lin_reg)
+```
+
+Un empleado en nivel cero debería pagar 195333 a la empresa, por cada nivel que suba el empleado ganaría 80879 más
+
+# Ajustar Modelo de Regresión Polinómica con el dataset
+
+```{r}
+dataset$Level2 = dataset$Level ^ 2
+dataset$Level3 = dataset$Level ^ 3
+dataset$Level4 = dataset$Level ^ 4
+poly_reg = lm(formula = Salary ~ Level + Level2 + Level3 + Level4,
+              data = dataset)
+
+summary(poly_reg)
+```
+## Visualización del modelo Lineal
+```{r}
+library(ggplot2)
+
+ggplot() + 
+  geom_point(aes(x =dataset$Level, y = dataset$Salary), 
+             colour = "red") +
+  geom_line(aes(x = dataset$Level, y = predict(lin_reg, newdata = dataset)),
+            colour = "blue")+
+  xlab("Nivel de empleado") + 
+  ylab("Sueldo en $") +
+  ggtitle("Predicción lineal del sueldo \n en función del nivel de empleado")
+  
+```
+
+
+## Visualización del modelo Polinómico
+```{r}
+library(ggplot2)
+
+ggplot() + 
+  geom_point(aes(x =dataset$Level, y = dataset$Salary), 
+             colour = "red") +
+  geom_line(aes(x = dataset$Level, y = predict(poly_reg, newdata = dataset)),
+            colour = "blue")+
+  xlab("Nivel de empleado") + 
+  ylab("Sueldo en $") +
+  ggtitle("Predicción Polinómica del sueldo \n en función del nivel de empleado")
+  
+```
+
+## Prediccion de resultados con Regresión Lineal
+
+```{r}
+y_pred = predict(lin_reg, newdata = data.frame(Level = 6.5))
+y_pred
+
+```
+Es una cantidad mucho más elevada de la que se considera en los datos
+
+
+## Predicción de resultados con Regresión Polinómica
+
+```{r}
+y_pred = predict(poly_reg, newdata = data.frame(Level = 6.5 , Level2 = 6.5 ^2, Level3 = 6.5 ^3, Level4 = 6.5 ^ 4))
+y_pred
+
+```
+La predicción es mucho más acertada, por lo cual este modelo trabaja mejor

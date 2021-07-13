@@ -1,0 +1,53 @@
+---
+title: "Regresión lineal"
+author: "jerf"
+date: "18/6/2021"
+output: html_document
+---
+
+
+# Regresión lineal
+
+```{r}
+dataset = read.csv("https://raw.githubusercontent.com/joanby/r-basic/master/data/bodyfat.txt", sep = " ", header = TRUE)
+head(dataset)
+```
+
+Se usará fat como variable independiente y Weight como variable dependiente
+
+```{r}
+body2 = dataset[,c(2,4)]
+body2
+names(body2)
+str(body2)
+```
+
+
+```{r}
+plot(body2)
+```
+
+Tienen una relación lineal
+
+```{r}
+regressor = lm(formula = Weight~Fat, data = body2)
+summary(regressor)
+```
+
+```{r}
+library(ggplot2)
+ggplot()+
+  geom_point(aes(x = body2$Fat, y = body2$Weight), colour = "red") + 
+  geom_line(aes(x = body2$Fat, 
+                y = predict(regressor, newdata = data.frame(Fat = body2$Fat))), colour = "blue") +
+  ggtitle("Weight en función de Fat (Modelo de Regresión Simple)") +
+  xlab("Fat") + 
+  ylab("Weight") 
+  
+  
+```
+
+
+
+
+

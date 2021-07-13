@@ -1,0 +1,132 @@
+---
+title: "Regresión Lineal Multiple"
+author: "jerf"
+date: "14/6/2021"
+output: html_document
+---
+
+
+# Regresión Lineal Multiple
+
+```{r}
+dataset = read.csv("50_startups.csv")
+dataset
+```
+
+## Datos categoricos
+
+```{r}
+dataset$State = factor(dataset$State,
+                       levels = c("New York", "California", "Florida"),
+                       labels = c(1, 2, 3))
+```
+
+
+## Pre Procesado de datos
+
+```{r}
+library(caTools)
+split = sample.split(dataset$Profit, SplitRatio = 0.8)
+training_set = subset(dataset, split == TRUE)
+training_set
+testing_set = subset(dataset, split == FALSE)
+testing_set
+
+```
+
+
+
+
+
+## Escalado de datos
+
+En este caso no es necesario
+
+
+## Modelo de Regresión Lineal Multiple con conjunto training
+
+```{r}
+# El punto indica que creara un modelo de Profit en función del resto
+regression = lm(formula = Profit ~ .,
+                data = training_set)
+summary(regression)
+
+# El p valor indica la probabilidad de que ese coeficiente pueda ser cero, por ello se eliminara en la eliminación hacia atras
+
+# Las tres estrellas sobre RD Spend indican que es la mejor variable para el modelo
+```
+
+
+## Haciendo predicciones con el conjunto testing
+
+```{r}
+y_pred = predict(regression, newdata = testing_set)
+y_pred
+```
+
+## Construir un modelo optimo con la Eliminacion hacia atras
+
+```{r}
+SL = 0.05
+regression = lm(formula = Profit ~ R.D.Spend + Administration + Marketing.Spend + State,
+                data = dataset)
+summary(regression)
+
+```
+Eliminamos State3
+
+```{r}
+regression = lm(formula = Profit ~ R.D.Spend + Administration + Marketing.Spend,
+                data = dataset)
+summary(regression)
+
+```
+
+Eliminamos Administration
+
+```{r}
+regression = lm(formula = Profit ~ R.D.Spend + Marketing.Spend ,
+                data = dataset)
+summary(regression)
+
+```
+
+
+Eliminamos Marketing.Spend
+
+```{r}
+regression = lm(formula = Profit ~ R.D.Spend,
+                data = dataset)
+summary(regression)
+
+```
+
+
+EL modelo más optimo resultó ser un modelo de regresión lineal simple con este criterio
+
+Adjusted R-Squared nos dice que la relación lineal se ajusta bien
+
+
+## De manera automatica
+
+```{r}
+backwardElimination <- function(x, sl) {
+  numVars = length(x)
+  for (i in c(1:numVars)){
+    regressor = lm(formula = Profit ~ ., data = x)
+    maxVar = max(coef(summary(regressor))[c(2:numVars), "Pr(>|t|)"])
+    if (maxVar > sl){
+      j = which(coef(summary(regressor))[c(2:numVars), "Pr(>|t|)"] == maxVar)
+      x = x[, -j]
+    }
+    numVars = numVars - 1
+  }
+  return(summary(regressor))
+}
+ 
+SL = 0.05
+dataset = dataset[, c(1,2,3,4,5)]
+backwardElimination(training_set, SL)
+
+```
+
